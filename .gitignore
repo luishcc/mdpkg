@@ -5,10 +5,7 @@ dump.*
 info.*
 restart.*
 
-*/gif/
-*/gif2
-*.gif
-*.png
+*.egg-info
 
 */__pycache__/
 /__pycache__/*
