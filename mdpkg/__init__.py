@@ -5,4 +5,4 @@ from . import (
     rwfile
 )
 
-from .test import foo
+
