@@ -4,3 +4,5 @@ from . import (
     misc,
     rwfile
 )
+
+from .test import foo
