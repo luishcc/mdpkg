@@ -1,1 +1,3 @@
-from .grid import Grid
+from ._grid import Grid
+
+__all__ =  ['Grid']
