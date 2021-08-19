@@ -78,7 +78,7 @@ the .read_snapshot( method can be called on a specific timestep '''
         ss = Snapshot(time)
         with open(self.file_name, 'r') as file:
             self.skip_lines(file, self.timesteps[time])
-            self.read_snapshot(file)
+            self.snapshots[time] = self.read_snapshot(file)
 
     def map_snapshot_in_file(self):
         with open(self.file_name, 'r') as file:
@@ -98,11 +98,11 @@ the .read_snapshot( method can be called on a specific timestep '''
 
     def read_sequential(self):
         file = open(self.file_name, 'r')
-        self.read_snapshot(file)
+        self.snap = self.read_snapshot(file)
         self._file = file
 
     def read_next(self):
-        self.read_snapshot(self._file)
+        self.snap = self.read_snapshot(self._file)
 
     def close_read(self):
         self._file.close()
@@ -139,7 +139,7 @@ the .read_snapshot( method can be called on a specific timestep '''
             t = line[1]
             p = [float(line[2]), float(line[3]), float(line[4])]
             ss.atoms[id] = (Atom(id, p, type=t))
-        self.snapshots[time] = ss
+        return ss
 
 
 
