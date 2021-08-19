@@ -1,0 +1,15 @@
+*.lammpstrj
+log.*
+*.data
+dump.*
+info.*
+restart.*
+
+*/gif/
+*/gif2
+*.gif
+*.png
+
+*/__pycache__/
+/__pycache__/*
+*.pyc
