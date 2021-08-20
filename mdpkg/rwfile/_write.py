@@ -1,10 +1,4 @@
-#--------------------------------------------------------------#
-#               Write a LAMMPS data file (SIMPLIFIED)
-#               and .dat files
-#
-#               Luis Carnevale
-#               14 Feb 2021
-#--------------------------------------------------------------#
+import os
 
 class DataFile:
     def __init__(self, box, atoms):
@@ -62,20 +56,20 @@ class Dat:
         self.data = data
         self.header = header
 
-    def write_file(self, name, dir):
+    def write_file(self, name, dir=os.getcwd()):
+        if not os.path.isdir(dir):
+            os.mkdir(dir)
         with open(f'{dir}/{name}.dat', 'w') as file:
             if self.header is not None:
                 self.write_header(file)
             self.write_block(file)
 
     def write_header(self, file):
-        file.write('# ' + self.header)
-
+        file.write('# ' + self.header + '\n')
 
     def write_block(self, file):
         for row in self.data:
             file.write(' '.join(map(str, row))+'\n')
-
 
 
 if __name__=='__main__':
