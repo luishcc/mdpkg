@@ -52,19 +52,23 @@ class DataFile:
 
 class Dat:
 
-    def __init__(self, data, header=None):
+    def __init__(self, data, labels=None):
         self.data = data
-        self.header = header
+        self.labels = labels
 
     def write_file(self, name, dir=os.getcwd()):
         if not os.path.isdir(dir):
             os.mkdir(dir)
         with open(f'{dir}/{name}.dat', 'w') as file:
-            if self.header is not None:
-                self.write_header(file)
+            if self.labels is not None:
+                self.write_labels(file)
+            else:
+                line = '# '
+                line += ' '.join([i for i in range(len(data[0]))])
+                file.write(''.join([line, '\n']))
             self.write_block(file)
 
-    def write_header(self, file):
+    def write_labels(self, file):
         file.write('# ' + self.header + '\n')
 
     def write_block(self, file):
