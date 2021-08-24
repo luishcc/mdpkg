@@ -69,7 +69,7 @@ class Dat:
             self.write_block(file)
 
     def write_labels(self, file):
-        file.write('# ' + self.header + '\n')
+        file.write('# ' + self.labels + '\n')
 
     def write_block(self, file):
         for row in self.data:
