@@ -75,6 +75,28 @@ class Dat:
         for row in self.data:
             file.write(' '.join(map(str, row))+'\n')
 
+class CSV:
+
+    def __init__(self, data, labels=None):
+        self.data = data
+        self.labels = labels
+
+    def write_file(self, name, dir=os.getcwd()):
+        if not os.path.isdir(dir):
+            os.mkdir(dir)
+        with open(f'{dir}/{name}.csv', 'w') as file:
+            if self.labels is not None:
+                self.write_labels(file)
+            self.write_block(file)
+
+    def write_labels(self, file):
+        file.write(','.join(self.labels) + '\n')
+
+    def write_block(self, file):
+        for row in self.data:
+            file.write(','.join(map(str, row))+'\n')
+
+
 
 if __name__=='__main__':
 
