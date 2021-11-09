@@ -189,6 +189,14 @@ class DataReader:
 #----------------------------------------------------------------
 if __name__=='__main__':
 
-    # a = DumpReader('dump.atom')
-    a = DumpReader('dump.many')
-    a.map_snapshot_in_file()
+    import timeit
+
+    start = timeit.default_timer()
+
+    file = '/home/luishcc/hdd/free_thread_results/R10_ratio48_A50-13/thread.lammpstrj'
+    data = DumpReader(file)
+    data.read_sequential()
+
+    stop = timeit.default_timer()
+
+    print(stop-start, f' for reading {len(data.snap.atoms)} particles')
