@@ -8,14 +8,18 @@ class Atom:
     ''' Atom object: used to describe describe position and other properties
 of a single atom/particle '''
 
-    def __init__(self, id, p, v=None, type=None):
+    def __init__(self, id, p, v=None, f=None, type=None):
         self.id = id
         self.position = p
         self.velocity = v
+        self.force = f
         self.type = type
         self.properties = {}
 
-    def set_property(self, name, vale):
+    def set_force(self, value):
+        self.force = value
+
+    def set_property(self, name, value):
         self.properties[name] = value
 
 #----------------------------------------------------------------
@@ -140,6 +144,26 @@ the .read_snapshot( method can be called on a specific timestep '''
             p = [float(line[2]), float(line[3]), float(line[4])]
             ss.atoms[id] = (Atom(id, p, type=t))
         return ss
+
+    def read_force(self, fdump, snap):
+        with open(fdump, 'r') as fd:
+            while True:
+                fd.readline()
+                if fd.readline() == str(snap.time):
+                    break
+                else:
+                    fd.readline()
+                    num = int(fd.readline())
+                    self.skip_lines(fd, num+5)
+
+            for _ in range(num):
+                line = file.readline().split()
+                id = int(line[0])
+                force = [line[1], line[2], line[3]]
+                snap.atoms[id].set_force = force
+        return
+
+
 
 
 
