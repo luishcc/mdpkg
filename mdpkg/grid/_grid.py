@@ -115,6 +115,12 @@ class Cell:
     def get_density(self):
         return len(self.atoms) / self.volume
 
+    def get_force(self, snap):
+        f = [0, 0, 0]
+        for atom in self.atoms:
+            f = [a+b for a,b in zip(f, snap.atoms[atom].force)]
+        return [i/len(self.atoms) for i in f]
+
 
 if __name__=='__main__':
 
