@@ -156,11 +156,13 @@ the .read_snapshot( method can be called on a specific timestep '''
                     num = int(fd.readline())
                     self.skip_lines(fd, num+5)
 
-            self.skip_lines(fd, 7)
+            fd.readline()
+            num = int(fd.readline())
+            self.skip_lines(fd, 5)
             for _ in range(num):
                 line = fd.readline().split()
                 id = int(line[0])
-                force = [line[1], line[2], line[3]]
+                force = [float(line[1]), float(line[2]), float(line[3])]
                 snap.atoms[id].set_force(force)
         return
 

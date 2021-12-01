@@ -7,7 +7,7 @@ class Grid:
     ''' Grid in cylindrical coordinates for liquid thread simulations.
     Atoms are connected over z periodic boundary '''
 
-    def __init__(self, snap, size=2):
+    def __init__(self, snap, size=1.5):
         self.cell = {}
         self.size = size
 
@@ -97,6 +97,8 @@ class Cell:
     def __init__(self, idr, idp, idz):
         self.atoms = []
         self.id = (idr, idp, idz)
+        self.force = None
+        self.force_cylindrical = None
         self.volume = None
         self.nangle = None
         self.angle = None
@@ -115,11 +117,24 @@ class Cell:
     def get_density(self):
         return len(self.atoms) / self.volume
 
-    def get_force(self, snap):
+    def get_force(self):
         f = [0, 0, 0]
         for atom in self.atoms:
-            f = [a+b for a,b in zip(f, snap.atoms[atom].force)]
-        return [i/len(self.atoms) for i in f]
+            f = [a+b for a, b in zip(f, atom.force)]
+            self.force = [i/len(self.atoms) for i in f]
+        return self.force
+
+    def get_force_cylindrical(self):
+        if self.force is not None:
+            self.force_cylindrical = [0,0,0]
+            phi = np.arctan2(self.force[1], self.force[0]) + np.pi
+            self.force_cylindrical[0] = self.force[0]*np.cos(phi)+self.force[1]*np.sin(phi)
+            self.force_cylindrical[1] = -self.force[0]*np.sin(phi)+self.force[1]*np.cos(phi)
+            self.force_cylindrical[2] = self.force[2]
+            return self.force_cylindrical
+        else:
+            self.get_force()
+            return self.get_force_cylindrical()
 
 
 if __name__=='__main__':
