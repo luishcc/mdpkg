@@ -98,7 +98,9 @@ class Cell:
         self.atoms = []
         self.id = (idr, idp, idz)
         self.force = None
+        self.velocity = None
         self.force_cylindrical = None
+        self.velocity_cylindrical = None
         self.volume = None
         self.nangle = None
         self.angle = None
@@ -126,16 +128,35 @@ class Cell:
 
     def get_force_cylindrical(self):
         if self.force is not None:
-            self.force_cylindrical = [0,0,0]
-            phi = np.arctan2(self.force[1], self.force[0]) + np.pi
-            self.force_cylindrical[0] = self.force[0]*np.cos(phi)+self.force[1]*np.sin(phi)
-            self.force_cylindrical[1] = -self.force[0]*np.sin(phi)+self.force[1]*np.cos(phi)
-            self.force_cylindrical[2] = self.force[2]
+            self.force_cylindrical = self.cart2cyl(self.force)
             return self.force_cylindrical
         else:
             self.get_force()
             return self.get_force_cylindrical()
 
+    def get_velocity(self):
+        v = [0, 0, 0]
+        for atom in self.atoms:
+            v = [a+b for a, b in zip(v, atom.velocity)]
+            self.velocity = [i/len(self.atoms) for i in v]
+        return self.velocity
+
+    def get_velocity_cylindrical(self):
+        if self.velocity is not None:
+            self.velocity_cylindrical = self.cart2cyl(self.velocity)
+            return self.velocity_cylindrical
+        else:
+            self.get_force()
+            return self.get_force_cylindrical()
+
+    def cart2cyl(self, vector):
+        ''' vector should be a list of components [x, y, z] '''
+        cyl = [0,0,0]
+        phi = np.arctan2(vector[1], vector[0]) + np.pi
+        cyl[0] =  vector[0]*np.cos(phi) + vector[1]*np.sin(phi)
+        cyl[1] = -vector[0]*np.sin(phi) + vector[1]*np.cos(phi)
+        cyl[2] =  vector[2]
+        return cyl
 
 if __name__=='__main__':
 

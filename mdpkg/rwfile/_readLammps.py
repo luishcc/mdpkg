@@ -19,7 +19,7 @@ of a single atom/particle '''
     def set_force(self, value):
         self.force = value
 
-    def set_force(self, value):
+    def set_velocity(self, value):
         self.velocity = value
 
     def set_property(self, name, value):
