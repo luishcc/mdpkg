@@ -19,6 +19,9 @@ of a single atom/particle '''
     def set_force(self, value):
         self.force = value
 
+    def set_force(self, value):
+        self.velocity = value
+
     def set_property(self, name, value):
         self.properties[name] = value
 
@@ -166,8 +169,26 @@ the .read_snapshot( method can be called on a specific timestep '''
                 snap.atoms[id].set_force(force)
         return
 
+    def read_velocity(self, vdump, snap):
+        with open(vdump, 'r') as fd:
+            while True:
+                fd.readline()
+                if int(fd.readline()) == snap.time:
+                    break
+                else:
+                    fd.readline()
+                    num = int(fd.readline())
+                    self.skip_lines(fd, num+5)
 
-
+            fd.readline()
+            num = int(fd.readline())
+            self.skip_lines(fd, 5)
+            for _ in range(num):
+                line = fd.readline().split()
+                id = int(line[0])
+                velocity = [float(line[1]), float(line[2]), float(line[3])]
+                snap.atoms[id].set_velocity(velocity)
+        return
 
 
 #----------------------------------------------------------------
