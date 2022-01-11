@@ -146,11 +146,14 @@ class Cell:
             self.velocity_cylindrical = self.cart2cyl(self.velocity)
             return self.velocity_cylindrical
         else:
-            self.get_force()
-            return self.get_force_cylindrical()
+            self.get_velocity()
+            return self.get_velocity_cylindrical()
 
     def cart2cyl(self, vector):
-        ''' vector should be a list of components [x, y, z] '''
+
+        ''' vector should be a list of components [x, y, z]
+Returns [r, theta, z] '''
+
         cyl = [0,0,0]
         phi = np.arctan2(vector[1], vector[0]) + np.pi
         cyl[0] =  vector[0]*np.cos(phi) + vector[1]*np.sin(phi)
