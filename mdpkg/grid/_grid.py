@@ -149,7 +149,7 @@ class Cell:
             self.get_velocity()
             return self.get_velocity_cylindrical()
 
-    def cart2cyl(self, vector):
+    def cart2cyl_vector(self, vector):
 
         ''' vector should be a list of components [x, y, z]
 Returns [r, theta, z] '''
