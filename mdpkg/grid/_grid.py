@@ -128,7 +128,7 @@ class Cell:
 
     def get_force_cylindrical(self):
         if self.force is not None:
-            self.force_cylindrical = self.cart2cyl(self.force)
+            self.force_cylindrical = self.cart2cyl_vector(self.force)
             return self.force_cylindrical
         else:
             self.get_force()
@@ -143,7 +143,7 @@ class Cell:
 
     def get_velocity_cylindrical(self):
         if self.velocity is not None:
-            self.velocity_cylindrical = self.cart2cyl(self.velocity)
+            self.velocity_cylindrical = self.cart2cyl_vector(self.velocity)
             return self.velocity_cylindrical
         else:
             self.get_velocity()
