@@ -15,16 +15,17 @@ class Grid:
         self.num_z = round(self.length_z / self.size)
         self.size_z = self.length_z / (self.num_z)
 
-
         for atom in snap.atoms.values():
             idr, idp = self.get_idpolar(atom.position)
             idz = self.get_idz(atom.position)
             try:
                 self.cell[(idr, idp,  idz)].add_atom(atom)
             except:
-                self.cell[(idr, idp,  idz)] = Cell(idr, idp,  idz)
+                self.cell[(idr, idp,  idz)] = Cell(idr, idp,  idz, self.size, self.size_z)
                 self.cell[(idr, idp,  idz)].set_nangle(self.get_numphi(idr))
-                self.cell[(idr, idp,  idz)].compute_volume(self.size)
+                # self.cell[(idr, idp,  idz)].compute_volume(self.size)
+                self.cell[(idr, idp,  idz)].compute_volume()
+                # self.cell[(idr, idp,  idz)].set_size(self.size, self.size_z)
                 self.cell[(idr, idp,  idz)].add_atom(atom)
 
         self.ncells = len(self.cell)
@@ -94,9 +95,11 @@ class Grid:
 
 class Cell:
 
-    def __init__(self, idr, idp, idz):
+    def __init__(self, idr, idp, idz, sr, sz):
         self.atoms = []
         self.id = (idr, idp, idz)
+        self.size = [sr, sz]
+        self.center = None
         self.force = None
         self.velocity = None
         self.force_cylindrical = None
@@ -104,6 +107,7 @@ class Cell:
         self.volume = None
         self.nangle = None
         self.angle = None
+
         self.density = None
 
     def add_atom(self, atom):
@@ -113,8 +117,20 @@ class Cell:
         self.nangle = nangle
         self.angle = 2*np.pi / self.nangle
 
-    def compute_volume(self, size):
-        self.volume = self.angle * size**3 * (2*self.id[0] + 1) * 0.5
+    def set_size(self, s, sz):
+        self.size = [s, sz]
+
+    def get_center(self):
+        if self.center is None:
+            r = (self.id[0]+0.5)*self.size[0]
+            t = (self.id[1]+0.5)*self.nangle
+            z = (self.id[2]+0.5)*self.size[1]
+            self.center = [r, t, z]
+        return self.center
+
+    def compute_volume(self):
+        self.volume = self.angle * self.size[0]**2 * (2*self.id[0] + 1) * 0.5
+        self.volume *= self.size[1]
 
     def get_density(self):
         return len(self.atoms) / self.volume
@@ -152,10 +168,11 @@ class Cell:
     def cart2cyl_vector(self, vector):
 
         ''' vector should be a list of components [x, y, z]
-Returns [r, theta, z] '''
+Returns [r, theta, z]
+OBS: NEED TO CORRECT/TEST FOR SIGN OF V_R ACORDING TO ANGLE PHI !!'''
 
         cyl = [0,0,0]
-        phi = np.arctan2(vector[1], vector[0]) + np.pi
+        phi = self.center[1]
         cyl[0] =  vector[0]*np.cos(phi) + vector[1]*np.sin(phi)
         cyl[1] = -vector[0]*np.sin(phi) + vector[1]*np.cos(phi)
         cyl[2] =  vector[2]
