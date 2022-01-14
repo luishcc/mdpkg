@@ -22,7 +22,7 @@ class Grid:
                 self.cell[(idr, idp,  idz)].add_atom(atom)
             except:
                 self.cell[(idr, idp,  idz)] = Cell(idr, idp,  idz, self.size, self.size_z)
-                self.cell[(idr, idp,  idz)].set_nangle(self.get_numphi(idr))
+                # self.cell[(idr, idp,  idz)].set_nangle(self.get_numphi(idr))
                 # self.cell[(idr, idp,  idz)].compute_volume(self.size)
                 self.cell[(idr, idp,  idz)].compute_volume()
                 # self.cell[(idr, idp,  idz)].set_size(self.size, self.size_z)
@@ -99,33 +99,33 @@ class Cell:
         self.atoms = []
         self.id = (idr, idp, idz)
         self.size = [sr, sz]
-        self.center = None
+        self.nangle = round(np.pi*(2*idr+1))
+        self.angle =  2*np.pi / self.nangle
+        self.center = self.get_center()
         self.force = None
         self.velocity = None
         self.force_cylindrical = None
         self.velocity_cylindrical = None
         self.volume = None
-        self.nangle = None
-        self.angle = None
+
 
         self.density = None
 
     def add_atom(self, atom):
         self.atoms.append(atom)
 
-    def set_nangle(self, nangle):
-        self.nangle = nangle
-        self.angle = 2*np.pi / self.nangle
+    # def set_nangle(self, nangle):
+    #     self.nangle = nangle
+    #     self.angle = 2*np.pi / self.nangle
 
     def set_size(self, s, sz):
         self.size = [s, sz]
 
     def get_center(self):
-        if self.center is None:
-            r = (self.id[0]+0.5)*self.size[0]
-            t = (self.id[1]+0.5)*self.nangle
-            z = (self.id[2]+0.5)*self.size[1]
-            self.center = [r, t, z]
+        r = (self.id[0]+0.5)*self.size[0]
+        t = (self.id[1]+0.5)*self.angle - np.pi # -pi from Id_r; arctan2()
+        z = (self.id[2]+0.5)*self.size[1]
+        self.center = [r, t, z]
         return self.center
 
     def compute_volume(self):
