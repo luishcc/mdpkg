@@ -20,6 +20,7 @@ class Grid:
             idz = self.get_idz(atom.position)
             try:
                 self.cell[(idr, idp,  idz)].add_atom(atom)
+                self.cell[(idr, idp,  idz)].set_density()
             except:
                 self.cell[(idr, idp,  idz)] = Cell(idr, idp,  idz, self.size, self.size_z)
                 # self.cell[(idr, idp,  idz)].set_nangle(self.get_numphi(idr))
@@ -92,6 +93,55 @@ class Grid:
             correlation[dz] = correlate(dz)
         return correlation
 
+    def set_forces(self):
+        for id, cell in self.cell.items():
+            cell.get_force_cylindrical()
+    def set_velocities(self):
+        for id, cell in self.cell.items():
+            cell.get_velocity_cylindrical()
+
+    def compute_auto_correlation(self, r, atts):
+
+        # idr = self.get_idr(r)
+        idr = r
+
+        def correlate(dz):
+            num_phi = self.get_numphi(idr)
+            sumsq = 0
+            corr = 0
+            for z in range(self.num_z - dz):
+                for phi in range(num_phi):
+                    try:
+                        # print(atts[0], atts[1] )
+                        # print(self.cell[(idr, phi, z)].get_attr(atts[0]),
+                        # self.cell[(idr, phi, z)].get_attr(atts[1]))
+                        # print(self.cell[(idr, phi, z)].density)
+                        # sumsq += self.cell[(idr, phi, z)].get_attr(atts[0])**2
+                        corr += (self.cell[(idr, phi, z)].get_attr(atts[0]) \
+                              * self.cell[(idr, phi, z+dz)].get_attr(atts[1]))
+                    except KeyError:
+                        continue
+            # for i in range(z+1, self.num_z):
+            #     for phi in range(num_phi):
+            #         try:
+            #             sumsq += self.cell[(idr, phi, i)].get_density()**2
+            #         except KeyError:
+            #             continue
+            nn = (self.num_z-dz) * num_phi
+            # nn2 = (self.num_z) * num_phi
+            # try:
+            #     corr /= sumsq
+            # except ZeroDivisionError:
+            #     return float('NaN')
+            return corr / nn
+
+        num = floor(self.num_z/2)
+        correlation = np.zeros(num)
+        dz_list = np.zeros(num)
+        for dz in range(num):
+            correlation[dz] = correlate(dz)
+        return correlation
+
 
 class Cell:
 
@@ -102,17 +152,19 @@ class Cell:
         self.nangle = round(np.pi*(2*idr+1))
         self.angle =  2*np.pi / self.nangle
         self.center = self.get_center()
+        # self.density = None
         self.force = None
         self.velocity = None
         self.force_cylindrical = None
         self.velocity_cylindrical = None
         self.volume = None
-
-
-        self.density = None
+        self._property = {}
 
     def add_atom(self, atom):
         self.atoms.append(atom)
+
+    def get_attr(self, attribute):
+        return self._property[attribute]
 
     # def set_nangle(self, nangle):
     #     self.nangle = nangle
@@ -132,6 +184,11 @@ class Cell:
         self.volume = self.angle * self.size[0]**2 * (2*self.id[0] + 1) * 0.5
         self.volume *= self.size[1]
 
+    def set_density(self):
+        self.density = len(self.atoms) / self.volume
+        self._property['density'] = self.density
+        return len(self.atoms) / self.volume
+
     def get_density(self):
         return len(self.atoms) / self.volume
 
@@ -139,12 +196,17 @@ class Cell:
         f = [0, 0, 0]
         for atom in self.atoms:
             f = [a+b for a, b in zip(f, atom.force)]
-            self.force = [i/len(self.atoms) for i in f]
+        self.force = [i/len(self.atoms) for i in f]
+        self._property['fx'] = self.force[0]
+        self._property['fy'] = self.force[1]
+        self._property['fz'] = self.force[2]
         return self.force
 
     def get_force_cylindrical(self):
         if self.force is not None:
             self.force_cylindrical = self.cart2cyl_vector(self.force)
+            self._property['fr'] = self.force_cylindrical[0]
+            self._property['ft'] = self.force_cylindrical[1]
             return self.force_cylindrical
         else:
             self.get_force()
@@ -154,12 +216,17 @@ class Cell:
         v = [0, 0, 0]
         for atom in self.atoms:
             v = [a+b for a, b in zip(v, atom.velocity)]
-            self.velocity = [i/len(self.atoms) for i in v]
+        self.velocity = [i/len(self.atoms) for i in v]
+        self._property['vx'] = self.velocity[0]
+        self._property['vy'] = self.velocity[1]
+        self._property['vz'] = self.velocity[2]
         return self.velocity
 
     def get_velocity_cylindrical(self):
         if self.velocity is not None:
             self.velocity_cylindrical = self.cart2cyl_vector(self.velocity)
+            self._property['vr'] = self.velocity_cylindrical[0]
+            self._property['vt'] = self.velocity_cylindrical[1]
             return self.velocity_cylindrical
         else:
             self.get_velocity()
