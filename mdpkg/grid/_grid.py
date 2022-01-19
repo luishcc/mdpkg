@@ -58,7 +58,8 @@ class Grid:
 
     def compute_density_correlation(self, r):
 
-        idr = self.get_idr(r)
+        # idr = self.get_idr(r)
+        idr = r
 
         def correlate(dz):
             num_phi = self.get_numphi(idr)
@@ -104,7 +105,6 @@ class Grid:
 
         # idr = self.get_idr(r)
         idr = r
-
         def correlate(dz):
             num_phi = self.get_numphi(idr)
             sumsq = 0
@@ -116,24 +116,24 @@ class Grid:
                         # print(self.cell[(idr, phi, z)].get_attr(atts[0]),
                         # self.cell[(idr, phi, z)].get_attr(atts[1]))
                         # print(self.cell[(idr, phi, z)].density)
-                        # sumsq += self.cell[(idr, phi, z)].get_attr(atts[0])**2
+                        sumsq += self.cell[(idr, phi, z)].get_attr(atts[0])**2
                         corr += (self.cell[(idr, phi, z)].get_attr(atts[0]) \
                               * self.cell[(idr, phi, z+dz)].get_attr(atts[1]))
                     except KeyError:
                         continue
-            # for i in range(z+1, self.num_z):
-            #     for phi in range(num_phi):
-            #         try:
-            #             sumsq += self.cell[(idr, phi, i)].get_density()**2
-            #         except KeyError:
-            #             continue
+            for i in range(z+1, self.num_z):
+                for phi in range(num_phi):
+                    try:
+                        sumsq += self.cell[(idr, phi, z)].get_attr(atts[0])**2
+                    except KeyError:
+                        continue
             nn = (self.num_z-dz) * num_phi
-            # nn2 = (self.num_z) * num_phi
-            # try:
-            #     corr /= sumsq
-            # except ZeroDivisionError:
-            #     return float('NaN')
-            return corr / nn
+            nn2 = (self.num_z) * num_phi
+            try:
+                corr /= (sumsq / nn2) * nn
+            except ZeroDivisionError:
+                return float('NaN')
+            return corr
 
         num = floor(self.num_z/2)
         correlation = np.zeros(num)
