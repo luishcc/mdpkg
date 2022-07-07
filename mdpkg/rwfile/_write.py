@@ -1,9 +1,10 @@
 import os
 
 class DataFile:
-    def __init__(self, box, atoms):
+    def __init__(self, box, atoms, molecules=None):
         self.box = box
         self.atoms = atoms
+        self.molecules = molecules
         self.header = None
 
     def set_header(self, text):
@@ -16,6 +17,10 @@ class DataFile:
         self.write_info(file)
         self.write_mass(file)
         self.write_atoms(file)
+        if self.molecules is not None:
+            self.write_molecules(file)
+            self.write_bonds(file)
+            self.write_angles(file)
         file.close()
 
     def write_header(self, file):
@@ -26,10 +31,24 @@ class DataFile:
         return
 
     def write_info(self, file):
-        file.write(f'{self.atoms.number} atoms\n')
-        file.write('\n')
-        file.write('1 atom types\n')
-        file.write('\n')
+
+        # lst = []
+        # for atom in self.atoms:
+        #     lst.append(atom.type)
+        #     sst = set(lst)
+
+        file.write(f'{len(self.atoms)} atoms\n')
+        file.write(f'2 atom types\n')
+
+        if self.molecules is not None:
+            # for mol in self.molecules:
+
+            file.write(f'{len(self.bonds)} bonds\n')
+            file.write(f'2 bond types\n')
+            file.write(f'{len(self.angles)} angles\n')
+            file.write(f'2 angle types\n')
+
+
         file.write(f'{self.box.xlo} {self.box.xhi} xlo xhi\n')
         file.write(f'{self.box.ylo} {self.box.yhi} ylo yhi\n')
         file.write(f'{self.box.zlo} {self.box.zhi} zlo zhi\n')
