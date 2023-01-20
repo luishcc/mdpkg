@@ -7,7 +7,7 @@ class Gridz:
     ''' Grid on only z axis of liquid thread simulations.
     Atoms are connected over z periodic boundary '''
 
-    def __init__(self, snap, size=1.5, R=6):
+    def __init__(self, snap, size=1.5, Rlow=0, Rup=6):
         self.cell = {}
         self.size = size
 
@@ -18,17 +18,17 @@ class Gridz:
         self.size_z = self.length_z / (self.num_z)
 
         for atom in snap.atoms.values():
-            # if atom.position[0]**2 + atom.position[1]**2 <= R**2:
-            idz = self.get_idz(atom.position)
-            try:
-                self.cell[idz].add_atom(atom)
-                self.cell[idz].set_density()
-            except:
-                self.cell[idz] = Cellz(idz, self.lx, self.ly, self.size_z)
-                self.cell[idz].compute_volume(R)
-                self.cell[idz].add_atom(atom)
-            # else:
-            #     continue
+            if Rlow**2 <= atom.position[0]**2 + atom.position[1]**2 <= Rup**2:
+                idz = self.get_idz(atom.position)
+                try:
+                    self.cell[idz].add_atom(atom)
+                    self.cell[idz].set_density()
+                except:
+                    self.cell[idz] = Cellz(idz, self.lx, self.ly, self.size_z)
+                    self.cell[idz].compute_volume(Rlow, Rup)
+                    self.cell[idz].add_atom(atom)
+            else:
+                continue
 
         self.ncells = len(self.cell)
 
@@ -99,8 +99,9 @@ class Cellz:
     def set_size(self, sx, sy, sz):
         self.size = [sx, sy, sz]
 
-    def compute_volume(self, R):
-        self.volume = 4 * self.size[0] * self.size[1] * self.size[2]
+    def compute_volume(self, Rlow, Rup):
+        # self.volume = 4 * self.size[0] * self.size[1] * self.size[2]
+        self.volume = np.pi * (Rup**2 - Rlow**2) * self.size[2]
         # self.volume = np.pi * R**2 * self.size[2]
         # self.volume = 4 * R**2 * self.size[2]
 
