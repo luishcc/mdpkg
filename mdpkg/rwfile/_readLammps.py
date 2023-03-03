@@ -75,6 +75,7 @@ the .read_snapshot( method can be called on a specific timestep '''
     def __init__(self, file_name):
         self.file_name = file_name
         self.timesteps = {}
+        self.timesteps2 = {}
         self.snapshots = {}
 
     def skip_lines(self, f, n_skip):
@@ -86,6 +87,14 @@ the .read_snapshot( method can be called on a specific timestep '''
         with open(self.file_name, 'r') as file:
             self.skip_lines(file, self.timesteps[time])
             self.snapshots[time] = self.read_snapshot(file)
+
+    def start_read(self):
+        file = open(self.file_name, 'r')
+        self._file = file
+
+    def read_snapshot_at2(self, time):
+        self._file.seek(self.timesteps2[time])
+        self.snap = self.read_snapshot(self._file)
 
     def map_snapshot_in_file(self):
         with open(self.file_name, 'r') as file:
@@ -102,6 +111,19 @@ the .read_snapshot( method can be called on a specific timestep '''
                 except:
                     reading = False
                     continue
+
+    def map_snapshot_in_file2(self):
+        with open(self.file_name, 'r') as file:
+            while True:
+                idl = file.tell()
+                try:
+                    file.readline()
+                    self.timesteps2[int(file.readline())] = idl
+                    file.readline()
+                    natom = int(file.readline())
+                    self.skip_lines(file, natom + 5)
+                except:
+                    break
 
     def read_sequential(self):
         file = open(self.file_name, 'r')
