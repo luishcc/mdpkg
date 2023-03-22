@@ -12,14 +12,16 @@ class GridSurf:
 
         lx = snap.box.get_length_x()
         ly = snap.box.get_length_y()
-
-        self.length_z = snap.box.get_length_z()
-        self.num_z = len(shape)-1
-        self.size_z = self.length_z / (self.num_z)
+        lz = snap.box.get_length_z()
+        self.num_z = len(shape)
+        self.size_z = lz / (self.num_z)
 
         for atom in snap.atoms.values():
-            z = snap.box.zlo + atom.position[2]*self.length_z
+            z = snap.box.zlo + atom.position[2]*lz
+            if z > lz:
+                z = lz*0.9999
             idz = self.get_idz(z)
+            # print(self.num_z, idz, z, lz)
             Rup = shape[idz] + 0.1*thickness
             Rlow = shape[idz] - 0.9*thickness
             if Rlow < 0:
@@ -42,7 +44,7 @@ class GridSurf:
         self.ncells = self.num_z
 
     def get_idz(self, z):
-        return floor((z*.9999) / self.size_z) # .9999 because of edge coord from LAMMPS is possible
+        return floor((z*1) / self.size_z) # .9999 because of edge coord from LAMMPS is possible
 
     def compute_density_correlation(self):
 
