@@ -17,8 +17,9 @@ class GridSurf:
         self.size_z = lz / (self.num_z)
 
         for atom in snap.atoms.values():
-            z = snap.box.zlo + atom.position[2]*lz
-            if z > lz:
+            # z = snap.box.zlo + atom.position[2]*lz
+            z = atom.position[2]
+            if z >= lz:
                 z = lz*0.9999
             idz = self.get_idz(z)
             # print(self.num_z, idz, z, lz)
@@ -26,8 +27,10 @@ class GridSurf:
             Rlow = shape[idz] - 0.9*thickness
             if Rlow < 0:
                 Rlow = 0
-            x = snap.box.xlo + atom.position[0]*lx
-            y = snap.box.ylo + atom.position[1]*ly
+            # x = snap.box.xlo + atom.position[0]*lx
+            # y = snap.box.ylo + atom.position[1]*ly
+            x = atom.position[0]
+            y = atom.position[1]
             # print(Rlow, x**2 + y**2, Rup)
             if Rlow**2 <= x**2 + y**2 <= Rup**2:
                 try:
