@@ -25,8 +25,8 @@ class GridSurf:
             # print(self.num_z, idz, z, lz)
             Rup = shape[idz] + 0.1*thickness
             Rlow = shape[idz] - 0.9*thickness
-            if Rlow < 0:
-                Rlow = 0
+            Rlow = max(0, Rlow)
+            
             # x = snap.box.xlo + atom.position[0]*lx
             # y = snap.box.ylo + atom.position[1]*ly
             x = atom.position[0]

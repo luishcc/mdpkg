@@ -251,7 +251,7 @@ if __name__=='__main__':
     import os
     from mdpkg.rwfile import DumpReader
 
-    rd = Reader(sys.argv[1])
+    rd = DumpReader(sys.argv[1])
     rd.map_snapshot_in_file()
     rd.read_snapshot(2500)
     data = rd.snapshots[2500]
